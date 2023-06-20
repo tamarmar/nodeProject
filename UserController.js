@@ -1,3 +1,4 @@
+const UserModel = require("./UserModel.js");
 
 const UserController = {
 
