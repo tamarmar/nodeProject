@@ -7,24 +7,24 @@ const { geocode } = require('opencage-api-client');
 const opencage = { geocode };
 
 const UserController = {
-  
+
     validation: (user) => {
         console.log("valid")
-        if(user.id==null||user.name==null||user.email==null||user.phone==null)
+        if (user.id == null || user.name == null || user.email == null || user.phone == null)
             return false;
-        if(user.email.search("@")==-1||user.email.search(" ")!=-1)
+        if (user.email.search("@") == -1 || user.email.search(" ") != -1)
             return false
 
-        opencage.geocode({q: user.phone})
+        opencage.geocode({ q: user.phone })
             .then(data => {
-               return true;
+                return true;
             })
             .catch(error => {
                 console.log("phone")
                 return false;
             });
-            return true
-        
+        return true
+
     },
     getAllUsers: async (req, res) => {
         try {
@@ -53,29 +53,28 @@ const UserController = {
             const hebDateString = hebDate.toString('h');
 
             addUser.date = hebDateString
-           // const user = await UserModel.users.find(user => addUser.email == user.email)
-            console.log(addUser.email+"  user")
-            if(UserController.validation(addUser)){
+            console.log(addUser.email + "  user")
+            if (UserController.validation(addUser)) {
                 const user = await UserModel.users.find(u => addUser.email === u.email)
-               
-              if (user == null) {
-                UserModel.users.push(addUser)
-                console.log(addUser)
-                res.send(200)
-                // .then(newUser => {
-                //     res.send(newUser)
-                // }).catch(err => {
-                //     console.log(err)
-                // })
 
-              }
-              else {
-                  res.send("User with that email already exists")
-              }
+                if (user == null) {
+                    UserModel.users.push(addUser)
+                    console.log(addUser)
+                    res.send(200).json(user)
+                    // .then(newUser => {
+                    //     res.send(newUser)
+                    // }).catch(err => {
+                    //     console.log(err)
+                    // })
+
+                }
+                else {
+                    res.send("User with that email already exists")
+                }
             }
-            else{
-            res.send("All fields must be filled in correctly")
-        }
+            else {
+                res.send("All fields must be filled in correctly")
+            }
         }
         catch (error) {
             res.status(400).json({ message: error.message })
@@ -83,22 +82,22 @@ const UserController = {
 
     },
     updateUser: (req, res) => {
-       if(validation(req.body)){
-        try {
-            const updateUser = UserModel.users.find((user) => user.id == req.params.id)
-            if (updateUser == null) {
-                return res.send('This user not exist')
+        if (UserController.validation(req.body)) {
+            try {
+                const updateUser = UserModel.users.find((user) => user.id == req.params.id)
+                if (updateUser == null) {
+                    return res.send('This user not exist')
+                }
+                updateUser.name = req.body.name;
+                updateUser.email = req.body.email;
+                updateUser.phone = req.body.phone;
+                res.status(200).json(updateUser)
+            } catch (error) {
+                res.status(400).json({ message: error.message })
             }
-            updateUser.name = req.body.name;
-            updateUser.email = req.body.email;
-            updateUser.phone = req.body.phone;
-            res.status(200).json(updateUser)
-        } catch (error) {
-            res.status(400).json({ message: error.message })
         }
-       }
         else
-        res.send("All fields must be filled in correctly")
+            res.send("All fields must be filled in correctly")
     },
     deleteUser: (req, res) => {
         const id = req.params.id;
