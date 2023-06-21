@@ -1,5 +1,6 @@
 const UserModel = require("./UserModel.js");
-
+const crypto = require('crypto');
+const Hebcal = require('hebcal');
 const UserController = {
 
     getAllUsers: async (req, res) => {
@@ -19,20 +20,33 @@ const UserController = {
         }
     },
     addUser: async (req, res) => {
-        const addUser = req.body;
+        try {
+            const addUser = req.body;
+            const uuid = crypto.randomUUID();
+            console.log(uuid + "  uuid");
+            addUser.id = uuid
 
-        const user = await UserModel.users.find(user => req.body.id == user.id)
-        if (user == null) {
-            UserModel.users.push(addUser)
-            res.send(200)
-            // .then(newUser => {
-            //     res.send(newUser)
-            // }).catch(err => {
-            //     console.log(err)
-            // })
+            const hebDate = new Hebcal.HDate(new Date(req.body.date));
+            const hebDateString = hebDate.toString('h');
+
+            addUser.date = hebDateString
+            const user = await UserModel.users.find(user => addUser.email == user.email)
+            if (user == null) {
+                UserModel.users.push(addUser)
+                res.send(200)
+                // .then(newUser => {
+                //     res.send(newUser)
+                // }).catch(err => {
+                //     console.log(err)
+                // })
+
+            }
+            else {
+                res.send("User with that email already exists")
+            }
         }
-        else {
-            res.send("User with that id already exists")
+        catch (error) {
+            res.status(400).json({ message: error.message })
         }
 
     },
