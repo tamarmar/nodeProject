@@ -2,6 +2,7 @@ const UserModel = require("./UserModel.js");
 
 const UserController = {
 
+   
     getAllUsers: async (req, res) => {
         try {
             const  user = await UserModel.users;
