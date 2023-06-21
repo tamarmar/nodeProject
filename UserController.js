@@ -4,7 +4,7 @@ const UserController = {
 
     getAllUsers: async (req, res) => {
         try {
-            const  user = await UserModel.find();
+            const  user = await UserModel.users;
             res.status(200).json(user)
         } catch (error) {
             res.status(400).json({message: error.message});
@@ -12,17 +12,18 @@ const UserController = {
     },
     getUserById: async(req, res) => {
         try {
-            const user = UserModel.findById(req.params.id)
+            const user = UserModel.users.find(user =>req.params.id==user.id)
             res.json(user)
         } catch (error) {
             res.status(400).json({message: error.message})
         }
     },
     addUser: async(req, res) => {
-        const addUser = new UserModel(req.body)
-        const user = await UserModel.findOne({ password:addUser.password })
+        const addUser = new User(req.body);
+        
+        const user = await UserModel.users.find(user =>req.body.id==user.id)
         if(user == null){ 
-            addUser.save()
+            users.push(addUser)
             .then(newUser => {
                 res.send(newUser)
             }).catch(err => {
@@ -30,37 +31,34 @@ const UserController = {
             })
         }
         else{
-            res.send("User with that password already exists")
+            res.send("User with that id already exists")
         }
        
     },
-    updateUser: async(req, res) => {
-        const {password} = req.params;
+    updateUser: (req, res) => {
         try {
-           const updateUser = await UserModel.findOne({password:password})
+           const updateUser = UserModel.users.find((user) => user.id === req.params.id)
            if(updateUser == null){
             return res.send('This user not exist')
            }
-            const user = await UserModel.findByIdAndUpdate(updateUser._id, req.body, {new:true});
-            res.status(200).json(user)
+           updateUser.name = req.body.name;
+           updateUser.email = req.body.email;
+           updateUser.phone = req.body.phone;
+            res.status(200).json(updateUser)
         } catch (error) {
             res.status(400).json({message: error.message})
         }
     },
-    deleteUser: async (req, res) => {
-        const {password}= req.params;
+    deleteUser: (req, res) => {
+        const id= req.params.id;
+        const index = UserModel.users.findIndex((user) => user.id === req.params.id)
         try {
-            const deleteUser = await UserModel.findOne({password:password})
-            if(deleteUser == null){
+            
+            if(index == -1){
                 return res.send('This user not exist');
             }
-            const links = deleteUser.links || [];
-            for (const link of links){
-                console.log(link);
-                await LinkModel.findByIdAndDelete(link)
-            }
-            const user = await UserModel.findByIdAndDelete(deleteUser._id);
-            res.status(200).json(deleteUser)
+            UserModel.users.splice(index, 1);
+            res.status(200).json(UserModel.users[index])
         } catch (error) {
             res.status(400).json({message: error.message})
         }
