@@ -21,20 +21,23 @@ const UserController = {
     },
     addUser: async (req, res) => {
         const addUser = req.body;
-
+        
         const user = await UserModel.users.find(user => req.body.id == user.id)
-        if (user == null) {
-            UserModel.users.push(addUser)
-            res.send(200)
-            // .then(newUser => {
-            //     res.send(newUser)
-            // }).catch(err => {
-            //     console.log(err)
-            // })
-        }
-        else {
-            res.send("User with that id already exists")
-        }
+        
+            if (user == null) {
+                UserModel.users.push(addUser)
+                res.send(200)
+                // .then(newUser => {
+                //     res.send(newUser)
+                // }).catch(err => {
+                //     console.log(err)
+                // })
+            }
+            else {
+                res.send("User with that id already exists")
+            }
+        
+        
 
     },
     updateUser: (req, res) => {
