@@ -9,10 +9,11 @@ const opencage = { geocode };
 const UserController = {
   
     validation: (user) => {
+        console.log("valid")
         if(user.id==null||user.name==null||user.email==null||user.phone==null)
             return false;
-        if(email.search("@")==-1||email.search(" ")!=-1)
-            return falsee
+        if(user.email.search("@")==-1||user.email.search(" ")!=-1)
+            return false
 
         opencage.geocode({q: user.phone})
             .then(data => {
@@ -22,6 +23,8 @@ const UserController = {
                 console.log("phone")
                 return false;
             });
+            return true
+        
     },
     getAllUsers: async (req, res) => {
         try {
@@ -50,10 +53,14 @@ const UserController = {
             const hebDateString = hebDate.toString('h');
 
             addUser.date = hebDateString
-            const user = await UserModel.users.find(user => addUser.email == user.email)
-            if(this.validation(user)){
+           // const user = await UserModel.users.find(user => addUser.email == user.email)
+            console.log(addUser.email+"  user")
+            if(UserController.validation(addUser)){
+                const user = await UserModel.users.find(u => addUser.email === u.email)
+               
               if (user == null) {
                 UserModel.users.push(addUser)
+                console.log(addUser)
                 res.send(200)
                 // .then(newUser => {
                 //     res.send(newUser)
@@ -65,6 +72,7 @@ const UserController = {
               else {
                   res.send("User with that email already exists")
               }
+            }
             else{
             res.send("All fields must be filled in correctly")
         }
@@ -75,7 +83,7 @@ const UserController = {
 
     },
     updateUser: (req, res) => {
-       if(this.validation(req.body)){
+       if(validation(req.body)){
         try {
             const updateUser = UserModel.users.find((user) => user.id == req.params.id)
             if (updateUser == null) {
