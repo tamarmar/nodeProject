@@ -1,4 +1,5 @@
 
+
 // const mongoose = require('mongoose')
 
 // const users = mongoose.Schema({
@@ -29,6 +30,7 @@ const users = [{ id: 1, name: "a", email: "s", phone: 1 }, { id: 2, name: "b", e
 module.exports = {
   users
 };
+
 
 
 // export default User;

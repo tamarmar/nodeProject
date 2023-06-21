@@ -1,8 +1,28 @@
+
 const UserModel = require("./UserModel.js");
 const crypto = require('crypto');
 const Hebcal = require('hebcal');
-const UserController = {
+// const opencage = require('opencage-api-client').default({key: '893969b4bda14166ace731df5d964730'});
+const { geocode } = require('opencage-api-client');
+const opencage = { geocode };
 
+const UserController = {
+  
+    validation: (user) => {
+        if(user.id==null||user.name==null||user.email==null||user.phone==null)
+            return false;
+        if(email.search("@")==-1||email.search(" ")!=-1)
+            return falsee
+
+        opencage.geocode({q: user.phone})
+            .then(data => {
+               return true;
+            })
+            .catch(error => {
+                console.log("phone")
+                return false;
+            });
+    },
     getAllUsers: async (req, res) => {
         try {
             const user = await UserModel.users;
@@ -31,7 +51,8 @@ const UserController = {
 
             addUser.date = hebDateString
             const user = await UserModel.users.find(user => addUser.email == user.email)
-            if (user == null) {
+            if(this.validation(user)){
+              if (user == null) {
                 UserModel.users.push(addUser)
                 res.send(200)
                 // .then(newUser => {
@@ -40,10 +61,13 @@ const UserController = {
                 //     console.log(err)
                 // })
 
-            }
-            else {
-                res.send("User with that email already exists")
-            }
+              }
+              else {
+                  res.send("User with that email already exists")
+              }
+            else{
+            res.send("All fields must be filled in correctly")
+        }
         }
         catch (error) {
             res.status(400).json({ message: error.message })
@@ -51,6 +75,7 @@ const UserController = {
 
     },
     updateUser: (req, res) => {
+       if(this.validation(req.body)){
         try {
             const updateUser = UserModel.users.find((user) => user.id == req.params.id)
             if (updateUser == null) {
@@ -63,6 +88,9 @@ const UserController = {
         } catch (error) {
             res.status(400).json({ message: error.message })
         }
+       }
+        else
+        res.send("All fields must be filled in correctly")
     },
     deleteUser: (req, res) => {
         const id = req.params.id;
@@ -79,5 +107,8 @@ const UserController = {
         }
     },
 }
+
+
+
 
 module.exports = UserController;
