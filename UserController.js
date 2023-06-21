@@ -1,10 +1,13 @@
+
 const UserModel = require("./UserModel.js");
+const crypto = require('crypto');
+const Hebcal = require('hebcal');
 // const opencage = require('opencage-api-client').default({key: '893969b4bda14166ace731df5d964730'});
 const { geocode } = require('opencage-api-client');
 const opencage = { geocode };
 
 const UserController = {
-
+  
     validation: (user) => {
         if(user.id==null||user.name==null||user.email==null||user.phone==null)
             return false;
@@ -37,11 +40,19 @@ const UserController = {
         }
     },
     addUser: async (req, res) => {
-        const addUser = req.body;
-        
-        const user = await UserModel.users.find(user => req.body.id == user.id)
-        if(this.validation(user)){
-            if (user == null) {
+        try {
+            const addUser = req.body;
+            const uuid = crypto.randomUUID();
+            console.log(uuid + "  uuid");
+            addUser.id = uuid
+
+            const hebDate = new Hebcal.HDate(new Date(req.body.date));
+            const hebDateString = hebDate.toString('h');
+
+            addUser.date = hebDateString
+            const user = await UserModel.users.find(user => addUser.email == user.email)
+            if(this.validation(user)){
+              if (user == null) {
                 UserModel.users.push(addUser)
                 res.send(200)
                 // .then(newUser => {
@@ -49,31 +60,35 @@ const UserController = {
                 // }).catch(err => {
                 //     console.log(err)
                 // })
-            }
-            else {
-                res.send("User with that id already exists")
-            }
-        }
-        else{
+
+              }
+              else {
+                  res.send("User with that email already exists")
+              }
+            else{
             res.send("All fields must be filled in correctly")
+        }
+        }
+        catch (error) {
+            res.status(400).json({ message: error.message })
         }
 
     },
     updateUser: (req, res) => {
-        if(this.validation(req.body)){
-            try {
-                const updateUser = UserModel.users.find((user) => user.id == req.params.id)
-                if (updateUser == null) {
-                    return res.send('This user not exist')
-                }
-                updateUser.name = req.body.name;
-                updateUser.email = req.body.email;
-                updateUser.phone = req.body.phone;
-                res.status(200).json(updateUser)
-            } catch (error) {
-                res.status(400).json({ message: error.message })
+       if(this.validation(req.body)){
+        try {
+            const updateUser = UserModel.users.find((user) => user.id == req.params.id)
+            if (updateUser == null) {
+                return res.send('This user not exist')
             }
+            updateUser.name = req.body.name;
+            updateUser.email = req.body.email;
+            updateUser.phone = req.body.phone;
+            res.status(200).json(updateUser)
+        } catch (error) {
+            res.status(400).json({ message: error.message })
         }
+       }
         else
         res.send("All fields must be filled in correctly")
     },
@@ -92,5 +107,8 @@ const UserController = {
         }
     },
 }
+
+
+
 
 module.exports = UserController;

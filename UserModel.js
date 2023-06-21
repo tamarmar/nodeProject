@@ -1,4 +1,5 @@
 
+
 // const mongoose = require('mongoose')
 
 // const users = mongoose.Schema({
@@ -16,18 +17,20 @@
 
 // module.exports = mongoose.model("users", users)
 class User {
-    constructor(id, name, email, phone) {
-      this.id = id;
-      this.name = name;
-      this.email = email;
-      this.phone = phone;
-    }
+  constructor(id, name, email, phone,date) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.phone = phone;
+    this.date=date;
   }
-  const users = [{ id: 1, name: "a", email: "s", phone: 1 }, { id: 2, name: "b", email: "i", phone: 2 }];
-  
-  module.exports = {
-    users
-  };
+}
+const users = [{ id: 1, name: "a", email: "s", phone: 1 }, { id: 2, name: "b", email: "i", phone: 2 }];
+
+module.exports = {
+  users
+};
+
 
 
 // export default User;
