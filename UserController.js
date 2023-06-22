@@ -2,29 +2,43 @@
 const UserModel = require("./UserModel.js");
 const crypto = require('crypto');
 const Hebcal = require('hebcal');
-// const opencage = require('opencage-api-client').default({key: '893969b4bda14166ace731df5d964730'});
-const { geocode } = require('opencage-api-client');
-const opencage = { geocode };
+const axios = require('axios');
 
 const UserController = {
 
-    validation: (user) => {
-        console.log("valid")
-        if (user.id == null || user.name == null || user.email == null || user.phone == null)
+
+    validation: async (user) => {
+        if (user.id == null || user.name == null || user.email == null || user.phone == null) {
             return false;
-        if (user.email.search("@") == -1 || user.email.search(" ") != -1)
-            return false
+        }
 
-        opencage.geocode({ q: user.phone })
-            .then(data => {
+        if (user.email.search("@") == -1 || user.email.search(" ") != -1) {
+            return false;
+        }
+
+
+
+
+
+        const api_key = "0cae7bfa98a0b8b78d72e808759ec1f6";
+        console.log(user.phone + "  phone");
+        const phone_number = user.phone;
+        const url = `http://apilayer.net/api/validate?access_key=${api_key}&number=${phone_number}`;
+        try {
+            const response = await axios.get(url);
+            const { valid, international_format } = response.data;
+            console.log(response.data + "valid")
+            if (valid) {
+                console.log('Phone number is valid');
                 return true;
-            })
-            .catch(error => {
-                console.log("phone")
+            } else {
+                console.log('Phone number is not valid');
                 return false;
-            });
-        return true
-
+            }
+        } catch (error) {
+            console.log('Error validating phone number:', error);
+            return false;
+        }
     },
     getAllUsers: async (req, res) => {
         try {
@@ -53,10 +67,9 @@ const UserController = {
             const hebDateString = hebDate.toString('h');
 
             addUser.date = hebDateString
-            console.log(addUser.email + "  user")
-            if (UserController.validation(addUser)) {
+            console.log(await UserController.validation(addUser) + "  return")
+            if (await UserController.validation(addUser)) {
                 const user = await UserModel.users.find(u => addUser.email === u.email)
-
                 if (user == null) {
                     UserModel.users.push(addUser)
                     console.log(addUser)
