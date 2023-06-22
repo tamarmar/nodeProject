@@ -23,11 +23,12 @@ const UserController = {
         const api_key = "0cae7bfa98a0b8b78d72e808759ec1f6";
         console.log(user.phone + "  phone");
         const phone_number = user.phone;
-        const url = `http://apilayer.net/api/validate?access_key=${api_key}&number=${phone_number}`;
+        console.log(phone_number);
+        const url = `https://phonevalidation.abstractapi.com/v1/?api_key=61c5fa0500f940f793ecee880cbd5659&phone=${phone_number}`;
         try {
             const response = await axios.get(url);
             const { valid, international_format } = response.data;
-            console.log(response.data + "valid")
+            console.log(response.data.valid + "valid")
             if (valid) {
                 console.log('Phone number is valid');
                 return true;
@@ -40,6 +41,8 @@ const UserController = {
             return false;
         }
     },
+
+
     getAllUsers: async (req, res) => {
         try {
             const user = await UserModel.users;
@@ -67,7 +70,7 @@ const UserController = {
             const hebDateString = hebDate.toString('h');
 
             addUser.date = hebDateString
-            console.log(await UserController.validation(addUser) + "  return")
+
             if (await UserController.validation(addUser)) {
                 const user = await UserModel.users.find(u => addUser.email === u.email)
                 if (user == null) {
