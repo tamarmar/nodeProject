@@ -9,30 +9,15 @@ permissions:
   contents: read  # Required for checking out private repositories
 
 jobs:
-  run-tests:
+  send-email:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Up Node.js  # Modify this for your tech stack
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'  # Change to match your project
-
-      - name: Install Dependencies
-        run: npm install  # Change to 'pip install -r requirements.txt' for Python
-
-      - name: Run Unit Tests
-        run: |
-          npm test > test-results.txt  # Change to 'pytest --junitxml=test-results.xml' for Python
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: test-results.txt
+      - name: Create Dummy Test Report
+        run: echo "Nightly test execution skipped. This is a test email." > test-results.txt
 
       - name: Send Email Notification
         uses: dawidd6/action-send-mail@v3
@@ -41,10 +26,10 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Nightly Unit Test Report - ${{ github.repository }}"
+          subject: "Nightly Test Report - ${{ github.repository }}"
           to: "recipient@example.com"
           from: "GitHub Actions <your-email@example.com>"
           body: |
-            The nightly test run has completed.
-            See attached test results.
+            This is a test email from GitHub Actions.
+            Unit tests were skipped for debugging the workflow.
           attachments: test-results.txt
